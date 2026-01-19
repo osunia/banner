@@ -196,15 +196,15 @@
             <div class="row">
                 <label>배경색</label>
                 <select id="bgType" onchange="updateBanner()">
-                    <option value="solid" selected>단색</option>
+                    <option value="solid">단색</option>
                     <option value="v-grad">세로 그라데이션</option>
-                    <option value="h-grad">가로 그라데이션</option>
+                    <option value="h-grad" selected>가로 그라데이션</option>
                     <option value="d-grad-r">대각선(↘)</option>
                     <option value="d-grad-l">대각선(↗)</option>
                     <option value="c-grad">중앙 그라데이션</option>
                 </select>
-                <input type="color" id="bgColor1" value="#6EB8D8" oninput="updateBanner()">
-                <input type="color" id="bgColor2" value="#ffb347" oninput="updateBanner()">
+                <input type="color" id="bgColor1" value="#ffb347" oninput="updateBanner()">
+                <input type="color" id="bgColor2" value="#6EB8D8" oninput="updateBanner()">
             </div>
             
             <div class="row">
@@ -357,8 +357,8 @@
                 <select id="borderType" onchange="updateBanner()">
                     <option value="none">없음</option>
                     <option value="solid">직사각형 (외곽선)</option>
-                    <option value="inner">내부 상자</option>
-                    <option value="stamp" selected>우표 (투명 구멍)</option>
+                    <option value="inner" selected>내부 상자</option>
+                    <option value="stamp">우표 (투명 구멍)</option>
                     <option value="ticket">티켓 (투명 구멍)</option>
                 </select>
                 
