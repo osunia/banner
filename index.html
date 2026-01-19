@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미리-깐 배너 생성기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amatic+SC&family=Anton&family=Bebas+Neue&family=Black+Han+Sans&family=Cherry+Bomb+One&family=Diphylleia&family=Do+Hyeon&family=Gamja+Flower&family=Gowun+Batang&family=Gowun+Dodum&family=Hi+Melody&family=Jua&family=Limelight&family=Lobster&family=Nanum+Gothic&family=Nanum+Myeongjo&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@400;700&family=Noto+Serif+KR&family=Pacifico&family=Poor+Story&family=Quantico&family=Roboto&family=Silkscreen&family=Song+Myung&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FFD700; 
+            --sky: #87CEEB;     
+            --red: #FF4500;     
+            --bg: #f0f0f0;
+            --panel: #ffffff;
+            --border: #ddd;
+        }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            background: #fff;
+            width: 100%;
+            border-bottom: 2px solid #333;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .bubble-left {
+            background: var(--red);
+            color: white;
+            padding: 15px 10px; 
+            width: 60px; 
+            height: 60px;
+            
+            font-weight: bold;
+            font-size: 0.9em;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            
+            clip-path: polygon(
+                50% 0%, 63% 20%,    
+                90% 5%, 75% 35%,    
+                100% 30%, 85% 50%, 
+                95% 80%, 70% 70%,   
+                75% 100%, 50% 80%, 
+                35% 100%, 35% 75%,  
+                5% 90%, 25% 60%,   
+                0% 60%, 20% 45%,   
+                0% 25%, 30% 30%,    
+                20% 5%, 45% 20%     
+            );
+        }
+        .title-box {
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 2rem;
+            -webkit-text-stroke: 1px #000;
+        }
+        .title-sky { color: var(--sky); }
+        .title-yellow { color: var(--primary); }
+        
+        .bubble-right {
+            background: var(--red);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50%;
+            transform: rotate(10deg);
+            font-weight: bold;
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        @keyframes pop { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1200px;
+            width: 95%;
+            margin-bottom: 50px;
+        }
+
+        .preview-area {
+            flex: 1;
+            min-width: 300px;
+            background: var(--panel);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            text-align: center;
+            border: 2px solid #333;
+            z-index: 10;
+        }
+
+        .controls-area {
+            flex: 2;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        canvas {
+            background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%);
+            background-size: 10px 10px;
+            background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            margin: 10px 0;
+            image-rendering: pixelated;
+        }
+
+        .control-group {
+            background: var(--panel);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .control-group h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.1em; border-bottom: 2px solid #eee; padding-bottom: 5px;}
+
+        .row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+        label { font-size: 0.9em; font-weight: bold; min-width: 80px; }
+        
+        input, select { padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        input[type="range"] { flex: 1; cursor: pointer; }
+        /* 숫자 입력 박스 스타일 추가 */
+        input[type="number"] { width: 50px; text-align: center; }
+        
+        button.btn {
+            background: #333; color: white; border: none; padding: 8px 15px;
+            border-radius: 4px; cursor: pointer; font-weight: bold;
+        }
+        button.btn:hover { background: #555; }
+        
+        .tab-menu { display: flex; gap: 5px; margin-bottom: 10px; }
+        .tab-btn { flex: 1; padding: 8px; background: #eee; border: none; cursor: pointer; font-weight: bold; }
+        .tab-btn.active { background: var(--sky); color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center;
+        }
+        .modal {
+            background: white; padding: 20px; border-radius: 10px; text-align: center;
+            width: 300px; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        .modal h3 { margin-top: 0; }
+        .modal button { width: 100%; margin-top: 10px; padding: 10px; font-size: 1rem; }
+        .close-btn { background: #ccc !important; color: #333 !important; }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="bubble-left">시간<br>절약!</div>
+    <div class="title-box">
+        <span class="title-sky">껍질-미리깐</span> <span class="title-yellow">배너</span>
+    </div>
+    <div class="bubble-right">즐겁다</div>
+</header>
+
+<div class="container">
+    <div class="preview-area">
+        <h3>미리보기</h3>
+        <canvas id="previewCanvas" width="200" height="40"></canvas>
+        <p style="font-size:0.8em; color:#666;">배경의 체크무늬는 투명 영역 확인용입니다.<br>실제 저장 시 투명하게 저장됩니다.</p>
+        
+        <button class="btn" style="width:100%; background:var(--red); font-size:1.1em;" onclick="openModal()">💾 다운로드</button>
+    </div>
+
+    <div class="controls-area">
+        
+        <div class="control-group">
+            <h3>🎨 배경 & 패턴</h3>
+            <div class="row">
+                <label>배경색</label>
+                <select id="bgType" onchange="updateBanner()">
+                    <option value="solid" selected>단색</option>
+                    <option value="v-grad">세로 그라데이션</option>
+                    <option value="h-grad">가로 그라데이션</option>
+                    <option value="d-grad-r">대각선(↘)</option>
+                    <option value="d-grad-l">대각선(↗)</option>
+                    <option value="c-grad">중앙 그라데이션</option>
+                </select>
+                <input type="color" id="bgColor1" value="#6EB8D8" oninput="updateBanner()">
+                <input type="color" id="bgColor2" value="#ffb347" oninput="updateBanner()">
+            </div>
+            
+            <div class="row">
+                <label>패턴</label>
+                <select id="patternType" onchange="updateBanner()">
+                    <option value="none">없음</option>
+                    <option value="dot">도트</option>
+                    <option value="check_gingham">깅엄 체크</option>
+                    <option value="check_window">윈도우페인</option>
+                    <option value="check_tartan" selected>타탄 체크</option>
+                    <option value="check_herring">헤링본</option>
+                    <option value="diag">사선</option>
+                </select>
+                <input type="color" id="patternColor" value="#ffffff" oninput="updateBanner()">
+            </div>
+            
+            <div class="row">
+                <label>패턴 크기</label>
+                <input type="range" id="patternSize" min="4" max="30" value="30" oninput="document.getElementById('patternSize_num').value=this.value; updateBanner()">
+                <input type="number" id="patternSize_num" min="4" max="30" value="30" oninput="document.getElementById('patternSize').value=this.value; updateBanner()">
+            </div>
+        </div>
+
+<div class="control-group">
+            <h3>🖼️ 꾸미기 (이미지)</h3>
+            <div class="row">
+                <input type="file" id="userImage" accept="image/*" onchange="handleImageUpload(this)">
+            </div>
+            
+            <div class="row" style="background:#f9f9f9; padding:5px; border-radius:4px;">
+                <label>배경 모드</label>
+                <input type="checkbox" id="imgScatter" onchange="updateBanner()">
+                <span style="font-size:0.9em; margin-left:5px; color:#555;">무작위 패턴 만들기</span>
+            </div>
+            
+            <div class="row">
+                <label>배경색 덮기</label>
+                <input type="range" id="imgOpacity" min="0" max="100" value="0" oninput="updateBanner()">
+            </div>
+            
+            <div class="row">
+                <label>밀도(개수)</label>
+                <input type="range" id="imgDensity" min="5" max="50" value="15" oninput="updateBanner()">
+            </div>
+
+            <hr>
+            <div class="row">
+                <label>위치 X</label>
+                <input type="range" id="objX" min="-50" max="250" value="52" oninput="document.getElementById('objX_num').value=this.value; updateBanner()">
+                <input type="number" id="objX_num" value="52" oninput="document.getElementById('objX').value=this.value; updateBanner()">
+            </div>
+            <div class="row">
+                <label>위치 Y</label>
+                <input type="range" id="objY" min="-50" max="100" value="22" oninput="document.getElementById('objY_num').value=this.value; updateBanner()">
+                <input type="number" id="objY_num" value="22" oninput="document.getElementById('objY').value=this.value; updateBanner()">
+            </div>
+            
+            <div class="row">
+                <label>크기</label>
+                <input type="range" id="objScale" min="10" max="400" value="200" oninput="document.getElementById('objScale_num').value=this.value; updateBanner()">
+                <input type="number" id="objScale_num" value="200" oninput="document.getElementById('objScale').value=this.value; updateBanner()">
+            </div>
+            
+            <div class="row">
+                <label>회전</label>
+                <input type="range" id="objRotate" min="-180" max="180" value="-10" oninput="document.getElementById('objRotate_num').value=this.value; updateBanner()">
+                <input type="number" id="objRotate_num" value="-10" oninput="document.getElementById('objRotate').value=this.value; updateBanner()">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>✍️ 텍스트</h3>
+            <div class="row">
+                <input type="text" id="bannerText" value="닻과 파도" oninput="updateBanner()" style="width:100%">
+            </div>
+            
+            <div class="row">
+                <label>폰트 선택</label>
+                <select id="fontFamily" onchange="updateBanner()" style="width: 100%;">
+                    <optgroup label="--- 한국어 ---">
+                        <option value="'Noto Sans KR'">Noto Sans KR</option>
+                        <option value="'Nanum Gothic'">Nanum Gothic</option>
+                        <option value="'Gowun Dodum'">Gowun Dodum</option>
+                        <option value="'Noto Serif KR'">Noto Serif KR</option>
+                        <option value="'Nanum Myeongjo'">Nanum Myeongjo</option>
+                        <option value="'Gowun Batang'">Gowun Batang</option>
+                        <option value="'Song Myung'">Song Myung</option>
+                        <option value="'Diphylleia'">Diphylleia</option>
+                        <option value="'Black Han Sans'">Black Han Sans</option>
+                        <option value="'Do Hyeon'" selected>Do Hyeon</option>
+                        <option value="'Jua'">Jua</option>
+                        <option value="'Gamja Flower'">Gamja Flower</option>
+                        <option value="'Hi Melody'">Hi Melody</option>
+                        <option value="'Nanum Pen Script'">Nanum Pen Script</option>
+                        <option value="'Poor Story'">Poor Story</option>
+                    </optgroup>
+                    <optgroup label="--- 영어 ---">
+                        <option value="'Roboto'">Roboto</option>
+                        <option value="'Bebas Neue'">Bebas Neue</option>
+                        <option value="'Anton'">Anton</option>
+                        <option value="'Lobster'">Lobster</option>
+                        <option value="'Pacifico'">Pacifico</option>
+                        <option value="'Limelight'">Limelight</option>
+                        <option value="'Amatic SC'">Amatic SC</option>
+                        <option value="'Cherry Bomb One'">Cherry Bomb One</option>
+                        <option value="'Quantico'">Quantico</option>
+                        <option value="'Silkscreen'">Silkscreen</option>
+                    </optgroup>
+                    <optgroup label="--- 기타 ---">
+                        <option value="custom">직접 입력</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="row" id="customFontRow" style="display:none; background:#fff3cd; padding:5px; border-radius:4px;">
+                <input type="text" id="customFontName" placeholder="예: Dongle" style="width: 60%;">
+                <button class="btn" onclick="loadCustomFont()" style="width: 35%; font-size:0.8em;">불러오기</button>
+                <p style="font-size:0.7em; margin:3px 0 0 0; color:#666; width:100%;">
+                    💡 Google Fonts 사이트에서 영문 이름을 찾아 입력하세요. (띄어쓰기 정확히)
+                </p>
+            </div>
+
+            <div class="row">
+                <label>스타일</label>
+                <input type="color" id="textColor" value="#ffffff" oninput="updateBanner()">
+            </div>
+
+            <div class="row">
+                <label>크기</label>
+                <input type="range" id="textSize" min="8" max="60" value="26" oninput="document.getElementById('textSize_num').value=this.value; updateBanner()">
+                <input type="number" id="textSize_num" min="8" max="60" value="26" oninput="document.getElementById('textSize').value=this.value; updateBanner()">
+            </div>
+
+            <div class="row">
+                <label>위치 X</label>
+                <input type="range" id="textX" min="0" max="200" value="143" oninput="document.getElementById('textX_num').value=this.value; updateBanner()">
+                <input type="number" id="textX_num" value="143" oninput="document.getElementById('textX').value=this.value; updateBanner()">
+            </div>
+            <div class="row">
+                <label>위치 Y</label>
+                <input type="range" id="textY" min="0" max="40" value="22" oninput="document.getElementById('textY_num').value=this.value; updateBanner()">
+                <input type="number" id="textY_num" value="22" oninput="document.getElementById('textY').value=this.value; updateBanner()">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>✨ 테두리 및 효과</h3>
+            <div class="row">
+                <label>테두리</label>
+                <select id="borderType" onchange="updateBanner()">
+                    <option value="none">없음</option>
+                    <option value="solid">직사각형 (외곽선)</option>
+                    <option value="inner">내부 상자</option>
+                    <option value="stamp" selected>우표 (투명 구멍)</option>
+                    <option value="ticket">티켓 (투명 구멍)</option>
+                </select>
+                
+                <input type="color" id="borderColor" value="#ffffff" oninput="updateBanner()">
+            </div>
+            
+            <div class="row">
+                <label>필터</label>
+                <select id="filterType" onchange="updateBanner()">
+                    <option value="none" selected>없음</option>
+                    <option value="dust">먼지/노이즈</option>
+                    <option value="bw">흑백</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+<div id="downloadModal" class="modal-overlay">
+    <div class="modal">
+        <h3>저장 크기 선택</h3>
+        <button class="btn" onclick="downloadBanner(1)">기본 (200x40)</button>
+        <button class="btn" onclick="downloadBanner(2)">고화질 (400x80)</button>
+        <button class="btn close-btn" onclick="closeModal()">취소</button>
+    </div>
+</div>
+
+<script>
+    const _0x2d9eee=_0x45cd;function _0x4b6c(){const _0x21a488=['bgType','createPattern','491845BWpBwm','objY','createElement','_num','none','src','bgColor2','canvas','custom','bgColor1','imgOpacity','flex','width','borderColor','2411010voYKYL','dust','createLinearGradient','getContext','createRadialGradient','clearRect','46058zKhGgt','textX','200','target','rel','check_window','objScale','objX','replace','customFontRow','fillRect','display','repeat','checked','error','classList','load','moveTo','400\x20','solid','bannerText','customFontName','toDataURL','save','https://fonts.googleapis.com/css2?family=','sin','#fff','destination-out','trim','4bibhsu','폰트\x20이름을\x20입력해주세요!','#000','onload','fill','textBaseline','saturation','3256231jTDkKs','image/png','previewCanvas','abs','strokeRect','strokeStyle','imgDensity','arc','lineTo','myBanner','translate','Anonymous','downloadModal','files','borderType','white','400','check_tartan','\x27Noto\x20Sans\x20KR\x27','download','head','patternType','add','height','textSize','86079OFwbII','lineWidth','objRotate','drawImage','readAsDataURL','imgScatter','textColor','patternColor','8mxtArn','active','remove','result','fonts','beginPath','getItem','globalAlpha','onerror','restore','globalCompositeOperation','fillText','check_herring','imageSmoothingEnabled','stroke','querySelectorAll','h-grad','c-grad','href','이미지\x20저장\x20중\x20오류가\x20발생했습니다.\x20(보안\x20정책\x20등으로\x20인해\x20외부\x20이미지가\x20포함된\x20경우\x20저장이\x20제한될\x20수\x20있습니다)','https://i.imgur.com/rMKj47a.png','addColorStop','click','font','fillStyle','stringify','inner','px\x20','ticket','폰트를\x20찾을\x20수\x20없습니다.\x20Google\x20Fonts의\x20영문\x20이름을\x20정확히\x20입력했는지\x20확인해주세요.','type','scale','style','2552643ibdTiN','middle','parse','setLineDash','value','getElementById','diag','rotate','random','96SqVKLw','forEach','patternSize','stamp','filterType','v-grad','textY','checkbox','.png','129093VndacS','check_gingham','setItem','fontFamily','4pTdYDj'];_0x4b6c=function(){return _0x21a488;};return _0x4b6c();}(function(_0x18af65,_0x5e25d6){const _0x2a0eb2=_0x45cd,_0x2637b7=_0x18af65();while(!![]){try{const _0x29e8fd=-parseInt(_0x2a0eb2(0x134))/0x1+-parseInt(_0x2a0eb2(0x151))/0x2*(-parseInt(_0x2a0eb2(0x119))/0x3)+parseInt(_0x2a0eb2(0x11d))/0x4*(parseInt(_0x2a0eb2(0x120))/0x5)+parseInt(_0x2a0eb2(0x110))/0x6*(-parseInt(_0x2a0eb2(0xde))/0x7)+parseInt(_0x2a0eb2(0xe6))/0x8*(parseInt(_0x2a0eb2(0x107))/0x9)+parseInt(_0x2a0eb2(0x12e))/0xa+-parseInt(_0x2a0eb2(0xc5))/0xb;if(_0x29e8fd===_0x5e25d6)break;else _0x2637b7['push'](_0x2637b7['shift']());}catch(_0x45f64e){_0x2637b7['push'](_0x2637b7['shift']());}}}(_0x4b6c,0x29958));const canvas=document['getElementById'](_0x2d9eee(0xc7)),ctx=canvas[_0x2d9eee(0x131)]('2d');let uploadedImg=null;window['onload']=function(){const _0x57d049=_0x2d9eee,_0x46a9a5=localStorage[_0x57d049(0xec)]('myBanner');if(_0x46a9a5){const _0x4fe9b7=JSON[_0x57d049(0x109)](_0x46a9a5);Object['keys'](_0x4fe9b7)[_0x57d049(0x111)](_0x360015=>{const _0x2c5dbe=_0x57d049,_0x16e767=document[_0x2c5dbe(0x10c)](_0x360015);if(_0x16e767){if(_0x16e767[_0x2c5dbe(0x104)]===_0x2c5dbe(0x117))_0x16e767[_0x2c5dbe(0x141)]=_0x4fe9b7[_0x360015];else _0x16e767[_0x2c5dbe(0x10b)]=_0x4fe9b7[_0x360015];const _0x3b18d5=document[_0x2c5dbe(0x10c)](_0x360015+_0x2c5dbe(0x123));if(_0x3b18d5)_0x3b18d5['value']=_0x4fe9b7[_0x360015];}});}const _0x6b806=new Image();_0x6b806['crossOrigin']=_0x57d049(0xd0),_0x6b806['onload']=function(){uploadedImg=_0x6b806,updateBanner();},_0x6b806[_0x57d049(0xee)]=function(){updateBanner();},_0x6b806[_0x57d049(0x125)]=_0x57d049(0xfa);};function switchTab(_0x205bc9){const _0x1c01eb=_0x2d9eee;activeTab=_0x205bc9,document[_0x1c01eb(0xf5)]('.tab-content')[_0x1c01eb(0x111)](_0x5cc85c=>_0x5cc85c[_0x1c01eb(0x143)]['remove']('active')),document['querySelectorAll']('.tab-btn')[_0x1c01eb(0x111)](_0x4ef725=>_0x4ef725[_0x1c01eb(0x143)][_0x1c01eb(0xe8)](_0x1c01eb(0xe7))),document[_0x1c01eb(0x10c)]('tab-'+_0x205bc9)[_0x1c01eb(0x143)]['add'](_0x1c01eb(0xe7)),event[_0x1c01eb(0x137)][_0x1c01eb(0x143)][_0x1c01eb(0xdb)](_0x1c01eb(0xe7)),updateBanner();}function handleImageUpload(_0x545ba7){const _0x337b5c=_0x2d9eee;if(_0x545ba7[_0x337b5c(0xd2)]&&_0x545ba7[_0x337b5c(0xd2)][0x0]){const _0x5d776d=new FileReader();_0x5d776d['onload']=function(_0x1c502b){const _0x365dd=_0x337b5c,_0x526cc7=new Image();_0x526cc7[_0x365dd(0xc1)]=function(){uploadedImg=_0x526cc7,updateBanner();},_0x526cc7[_0x365dd(0x125)]=_0x1c502b['target'][_0x365dd(0xe9)];},_0x5d776d[_0x337b5c(0xe2)](_0x545ba7[_0x337b5c(0xd2)][0x0]);}}function openModal(){const _0x562093=_0x2d9eee;document[_0x562093(0x10c)](_0x562093(0xd1))[_0x562093(0x106)][_0x562093(0x13f)]=_0x562093(0x12b);}function closeModal(){const _0xf8eef1=_0x2d9eee;document[_0xf8eef1(0x10c)](_0xf8eef1(0xd1))[_0xf8eef1(0x106)][_0xf8eef1(0x13f)]=_0xf8eef1(0x124);}document['getElementById']('fontFamily')['addEventListener']('change',function(){const _0x309623=_0x2d9eee,_0x49169f=document[_0x309623(0x10c)](_0x309623(0x13d));this['value']===_0x309623(0x128)?_0x49169f['style'][_0x309623(0x13f)]='flex':(_0x49169f[_0x309623(0x106)][_0x309623(0x13f)]='none',updateBanner());});function loadCustomFont(){const _0x17fcb7=_0x2d9eee,_0x1bf962=document[_0x17fcb7(0x10c)]('customFontName')['value']['trim']();if(!_0x1bf962)return alert(_0x17fcb7(0x152));const _0x308906=document[_0x17fcb7(0x122)]('link');_0x308906[_0x17fcb7(0xf8)]=_0x17fcb7(0x14c)+_0x1bf962[_0x17fcb7(0x13c)](/ /g,'+')+'&display=swap',_0x308906[_0x17fcb7(0x138)]='stylesheet',_0x308906[_0x17fcb7(0xc1)]=function(){updateBanner();},_0x308906[_0x17fcb7(0xee)]=function(){const _0x1e3ac0=_0x17fcb7;alert(_0x1e3ac0(0x103));},document[_0x17fcb7(0xd9)]['appendChild'](_0x308906);}function updateBanner(){const _0x503e39=_0x2d9eee,_0x561bed=document[_0x503e39(0x10c)](_0x503e39(0x11e))[_0x503e39(0x10b)],_0x513d84=document[_0x503e39(0x10c)](_0x503e39(0x129))['value'],_0x55e8a3=document[_0x503e39(0x10c)]('bgColor2')[_0x503e39(0x10b)],_0x4d9e=document[_0x503e39(0x10c)](_0x503e39(0xda))[_0x503e39(0x10b)],_0x3c948c=document[_0x503e39(0x10c)](_0x503e39(0xe5))[_0x503e39(0x10b)],_0x1e2f43=parseInt(document['getElementById']('patternSize')[_0x503e39(0x10b)]),_0x575e91=document[_0x503e39(0x10c)](_0x503e39(0xd3))[_0x503e39(0x10b)],_0x54ca42=document['getElementById'](_0x503e39(0x12d))['value'];ctx[_0x503e39(0x133)](0x0,0x0,0xc8,0x28);let _0x2dfbb4=_0x513d84;if(_0x561bed!==_0x503e39(0x147)){let _0x4a96db;if(_0x561bed===_0x503e39(0x115))_0x4a96db=ctx[_0x503e39(0x130)](0x0,0x0,0x0,0x28);else{if(_0x561bed===_0x503e39(0xf6))_0x4a96db=ctx[_0x503e39(0x130)](0x0,0x0,0xc8,0x0);else{if(_0x561bed===_0x503e39(0xf7))_0x4a96db=ctx[_0x503e39(0x132)](0x64,0x14,0x0,0x64,0x14,0x64);}}_0x4a96db[_0x503e39(0xfb)](0x0,_0x513d84),_0x4a96db['addColorStop'](0x1,_0x55e8a3),_0x2dfbb4=_0x4a96db;}ctx[_0x503e39(0xfe)]=_0x2dfbb4,ctx[_0x503e39(0x13e)](0x0,0x0,0xc8,0x28);_0x4d9e!==_0x503e39(0x124)&&drawPattern(_0x4d9e,_0x3c948c,_0x1e2f43);if(uploadedImg){const _0x4665c0=document['getElementById'](_0x503e39(0xe3))[_0x503e39(0x141)],_0x299666=document[_0x503e39(0x10c)]('imgOpacity')[_0x503e39(0x10b)]/0x64,_0x36fe78=parseInt(document[_0x503e39(0x10c)]('imgDensity')['value']),_0x568d28=parseInt(document[_0x503e39(0x10c)](_0x503e39(0x13a))[_0x503e39(0x10b)])/0x64,_0x386a94=parseInt(document[_0x503e39(0x10c)](_0x503e39(0xe0))[_0x503e39(0x10b)])*Math['PI']/0xb4;ctx[_0x503e39(0x14b)](),ctx[_0x503e39(0xed)]=0x1;if(_0x4665c0)for(let _0x465617=0x1;_0x465617<=_0x36fe78;_0x465617++){ctx[_0x503e39(0x14b)]();const _0x4ca914=Math[_0x503e39(0xc8)](Math[_0x503e39(0x14d)](_0x465617*12.9898)*43758.5453)%0x1*0xf0-0x14,_0x20028b=Math[_0x503e39(0xc8)](Math['sin'](_0x465617*78.233)*43758.5453)%0x1*0x50-0x14,_0x41f749=Math[_0x503e39(0x14d)](_0x465617)*Math['PI'];ctx[_0x503e39(0xcf)](_0x4ca914,_0x20028b),ctx[_0x503e39(0x10e)](_0x386a94+_0x41f749),ctx['scale'](_0x568d28,_0x568d28);const _0x561c83=uploadedImg['width']/uploadedImg['height'],_0x38243b=0x1e,_0x22db18=_0x38243b*_0x561c83;ctx[_0x503e39(0xe1)](uploadedImg,-_0x22db18/0x2,-_0x38243b/0x2,_0x22db18,_0x38243b),ctx[_0x503e39(0xef)]();}else{const _0x2e6a7d=parseInt(document[_0x503e39(0x10c)]('objX')['value']),_0x3c228a=parseInt(document[_0x503e39(0x10c)](_0x503e39(0x121))[_0x503e39(0x10b)]);ctx[_0x503e39(0xcf)](_0x2e6a7d,_0x3c228a),ctx[_0x503e39(0x10e)](_0x386a94),ctx[_0x503e39(0x105)](_0x568d28,_0x568d28);const _0x28688c=uploadedImg[_0x503e39(0x12c)]/uploadedImg[_0x503e39(0xdc)],_0x1607c0=0x1e,_0x1cc84a=_0x1607c0*_0x28688c;ctx[_0x503e39(0xe1)](uploadedImg,-_0x1cc84a/0x2,-_0x1607c0/0x2,_0x1cc84a,_0x1607c0);}_0x299666>0x0&&(ctx['globalAlpha']=_0x299666,ctx[_0x503e39(0xfe)]=_0x513d84,ctx[_0x503e39(0x13e)](0x0,0x0,0xc8,0x28)),ctx[_0x503e39(0xef)]();}const _0x133f85=document[_0x503e39(0x10c)]('bannerText')[_0x503e39(0x10b)];let _0x1fafa4=document[_0x503e39(0x10c)](_0x503e39(0x11c))[_0x503e39(0x10b)];if(_0x1fafa4===_0x503e39(0x128)){const _0x81b868=document[_0x503e39(0x10c)](_0x503e39(0x149))['value'][_0x503e39(0x150)]();_0x1fafa4=_0x81b868?'\x27'+_0x81b868+'\x27':_0x503e39(0xd7);}const _0x3d1220=document[_0x503e39(0x10c)](_0x503e39(0xdd))['value'],_0x27b2fa=document[_0x503e39(0x10c)](_0x503e39(0xe4))[_0x503e39(0x10b)],_0x1af7b6=document[_0x503e39(0x10c)](_0x503e39(0x135))[_0x503e39(0x10b)],_0x51883d=document[_0x503e39(0x10c)](_0x503e39(0x116))[_0x503e39(0x10b)],_0x3d0f49=_0x503e39(0x146)+_0x3d1220+_0x503e39(0x101)+_0x1fafa4;!document[_0x503e39(0xea)]['check'](_0x3d0f49,_0x133f85)&&document[_0x503e39(0xea)][_0x503e39(0x144)](_0x3d0f49,_0x133f85)['then'](()=>{updateBanner();});ctx[_0x503e39(0xfd)]=_0x3d0f49,ctx[_0x503e39(0xfe)]=_0x27b2fa,ctx['textAlign']='center',ctx[_0x503e39(0xc3)]=_0x503e39(0x108),ctx[_0x503e39(0xf1)](_0x133f85,_0x1af7b6,_0x51883d),drawBorderVisuals(_0x575e91,_0x54ca42);const _0x4c996c=document[_0x503e39(0x10c)]('filterType')[_0x503e39(0x10b)];applyFilter(_0x4c996c),drawBorderMasks(_0x575e91),saveSettings();}function drawBorderVisuals(_0x31cd3a,_0x23f980){const _0x3d98af=_0x2d9eee;ctx[_0x3d98af(0xca)]=_0x23f980,ctx[_0x3d98af(0xdf)]=0x2;if(_0x31cd3a==='solid')ctx[_0x3d98af(0xc9)](0x0,0x0,0xc8,0x28);else{if(_0x31cd3a===_0x3d98af(0x100))ctx[_0x3d98af(0xc9)](0x4,0x4,0xc0,0x20);else _0x31cd3a===_0x3d98af(0x102)&&(ctx[_0x3d98af(0x14b)](),ctx['setLineDash']([0x3,0x3]),ctx['beginPath'](),ctx[_0x3d98af(0x145)](0xa0,0x0),ctx[_0x3d98af(0xcd)](0xa0,0x28),ctx[_0x3d98af(0xf4)](),ctx['restore'](),ctx['strokeRect'](0x0,0x0,0xc8,0x28));}}function _0x45cd(_0x1983ae,_0x183305){_0x1983ae=_0x1983ae-0xc0;const _0x4b6cb6=_0x4b6c();let _0x45cd14=_0x4b6cb6[_0x1983ae];return _0x45cd14;}function applyFilter(_0x2f109d){const _0x9811a0=_0x2d9eee;if(_0x2f109d===_0x9811a0(0x12f)){ctx[_0x9811a0(0x14b)](),ctx[_0x9811a0(0xed)]=0.15;for(let _0x19f874=0x0;_0x19f874<0x320;_0x19f874++){ctx[_0x9811a0(0xfe)]=Math[_0x9811a0(0x10f)]()>0.5?_0x9811a0(0x14e):_0x9811a0(0xc0),ctx['fillRect'](Math[_0x9811a0(0x10f)]()*0xc8,Math['random']()*0x28,0x1,0x1);}ctx['restore']();}else _0x2f109d==='bw'&&(ctx['globalCompositeOperation']=_0x9811a0(0xc4),ctx[_0x9811a0(0xfe)]=_0x9811a0(0xd4),ctx['fillRect'](0x0,0x0,0xc8,0x28),ctx[_0x9811a0(0xf0)]='source-over');}function drawBorderMasks(_0xc7f548){const _0x25fbdd=_0x2d9eee;if(_0xc7f548!==_0x25fbdd(0x113)&&_0xc7f548!==_0x25fbdd(0x102))return;ctx[_0x25fbdd(0x14b)](),ctx[_0x25fbdd(0xf0)]='destination-out';if(_0xc7f548==='stamp'){const _0x25481b=0xa,_0x5db62d=0x3;for(let _0x19e3e1=0x0;_0x19e3e1<=0xc8;_0x19e3e1+=_0x25481b){ctx[_0x25fbdd(0xeb)](),ctx[_0x25fbdd(0xcc)](_0x19e3e1,0x0,_0x5db62d,0x0,Math['PI']*0x2),ctx[_0x25fbdd(0xc2)](),ctx[_0x25fbdd(0xeb)](),ctx[_0x25fbdd(0xcc)](_0x19e3e1,0x28,_0x5db62d,0x0,Math['PI']*0x2),ctx['fill']();}for(let _0x43ea8a=0x0;_0x43ea8a<=0x28;_0x43ea8a+=_0x25481b){ctx[_0x25fbdd(0xeb)](),ctx[_0x25fbdd(0xcc)](0x0,_0x43ea8a,_0x5db62d,0x0,Math['PI']*0x2),ctx[_0x25fbdd(0xc2)](),ctx[_0x25fbdd(0xeb)](),ctx[_0x25fbdd(0xcc)](0xc8,_0x43ea8a,_0x5db62d,0x0,Math['PI']*0x2),ctx['fill']();}}else{if(_0xc7f548===_0x25fbdd(0x102)){const _0xd55fb0=0x8;ctx[_0x25fbdd(0xeb)](),ctx[_0x25fbdd(0xcc)](0x0,0x14,_0xd55fb0,0x0,Math['PI']*0x2),ctx['fill'](),ctx[_0x25fbdd(0xeb)](),ctx[_0x25fbdd(0xcc)](0xc8,0x14,_0xd55fb0,0x0,Math['PI']*0x2),ctx[_0x25fbdd(0xc2)]();}}ctx[_0x25fbdd(0xef)]();}function drawPattern(_0x4eb38d,_0x2aa27b,_0xba1798){const _0x276203=_0x2d9eee,_0x3810b9=document['createElement']('canvas');_0x3810b9[_0x276203(0x12c)]=_0xba1798,_0x3810b9[_0x276203(0xdc)]=_0xba1798;const _0x12d65a=_0x3810b9[_0x276203(0x131)]('2d');_0x12d65a[_0x276203(0xfe)]=_0x2aa27b;if(_0x4eb38d==='dot')_0x12d65a[_0x276203(0xed)]=0.3,_0x12d65a[_0x276203(0xeb)](),_0x12d65a[_0x276203(0xcc)](_0xba1798/0x2,_0xba1798/0x2,_0xba1798/0x4,0x0,Math['PI']*0x2),_0x12d65a['fill']();else{if(_0x4eb38d===_0x276203(0x10d))_0x12d65a[_0x276203(0xed)]=0.3,_0x12d65a[_0x276203(0xca)]=_0x2aa27b,_0x12d65a[_0x276203(0xeb)](),_0x12d65a[_0x276203(0x145)](0x0,_0xba1798),_0x12d65a[_0x276203(0xcd)](_0xba1798,0x0),_0x12d65a[_0x276203(0xf4)]();else{if(_0x4eb38d===_0x276203(0x11a))_0x12d65a[_0x276203(0xed)]=0.2,_0x12d65a[_0x276203(0x13e)](0x0,0x0,_0xba1798/0x2,_0xba1798),_0x12d65a['fillRect'](0x0,0x0,_0xba1798,_0xba1798/0x2);else{if(_0x4eb38d===_0x276203(0x139))_0x12d65a[_0x276203(0xca)]=_0x2aa27b,_0x12d65a[_0x276203(0xdf)]=0x1,_0x12d65a[_0x276203(0xed)]=0.4,_0x12d65a[_0x276203(0xc9)](0x0,0x0,_0xba1798,_0xba1798);else{if(_0x4eb38d===_0x276203(0xd6))_0x12d65a[_0x276203(0xfe)]=_0x2aa27b,_0x12d65a['globalAlpha']=0.15,_0x12d65a[_0x276203(0x13e)](0x0,0x0,_0xba1798,_0xba1798),_0x12d65a['globalAlpha']=0.3,_0x12d65a['fillRect'](_0xba1798/0x4,0x0,_0xba1798/0x2,_0xba1798),_0x12d65a[_0x276203(0x13e)](0x0,_0xba1798/0x4,_0xba1798,_0xba1798/0x2),_0x12d65a[_0x276203(0xca)]=_0x2aa27b,_0x12d65a['globalAlpha']=0.5,_0x12d65a[_0x276203(0xc9)](0x0,0x0,_0xba1798,_0xba1798);else _0x4eb38d===_0x276203(0xf2)&&(_0x3810b9[_0x276203(0x12c)]=_0xba1798,_0x3810b9[_0x276203(0xdc)]=_0xba1798/0x2,_0x12d65a[_0x276203(0xca)]=_0x2aa27b,_0x12d65a['lineWidth']=0x1,_0x12d65a[_0x276203(0xed)]=0.3,_0x12d65a[_0x276203(0xeb)](),_0x12d65a[_0x276203(0x145)](0x0,0x0),_0x12d65a[_0x276203(0xcd)](_0xba1798/0x2,_0xba1798/0x2),_0x12d65a[_0x276203(0xcd)](_0xba1798,0x0),_0x12d65a[_0x276203(0xf4)]());}}}}const _0xe50a1f=ctx[_0x276203(0x11f)](_0x3810b9,_0x276203(0x140));ctx['fillStyle']=_0xe50a1f,ctx[_0x276203(0x13e)](0x0,0x0,0xc8,0x28);}function drawBorder(_0x1e24b0,_0x1108ce){const _0x4c9fe7=_0x2d9eee;ctx[_0x4c9fe7(0xca)]=_0x1108ce,ctx[_0x4c9fe7(0xdf)]=0x2;if(_0x1e24b0===_0x4c9fe7(0x147))ctx['strokeRect'](0x0,0x0,0xc8,0x28);else{if(_0x1e24b0===_0x4c9fe7(0x100))ctx[_0x4c9fe7(0xc9)](0x4,0x4,0xc0,0x20);else{if(_0x1e24b0===_0x4c9fe7(0x113)){ctx['save'](),ctx[_0x4c9fe7(0xf0)]=_0x4c9fe7(0x14f);const _0x592630=0xa;for(let _0xd3994d=0x0;_0xd3994d<=0xc8;_0xd3994d+=_0x592630){ctx[_0x4c9fe7(0xeb)](),ctx[_0x4c9fe7(0xcc)](_0xd3994d,0x0,0x3,0x0,Math['PI']*0x2),ctx[_0x4c9fe7(0xc2)](),ctx['beginPath'](),ctx[_0x4c9fe7(0xcc)](_0xd3994d,0x28,0x3,0x0,Math['PI']*0x2),ctx['fill']();}for(let _0x311d97=0x0;_0x311d97<=0x28;_0x311d97+=_0x592630){ctx['beginPath'](),ctx['arc'](0x0,_0x311d97,0x3,0x0,Math['PI']*0x2),ctx[_0x4c9fe7(0xc2)](),ctx['beginPath'](),ctx[_0x4c9fe7(0xcc)](0xc8,_0x311d97,0x3,0x0,Math['PI']*0x2),ctx[_0x4c9fe7(0xc2)]();}ctx['restore']();}else _0x1e24b0===_0x4c9fe7(0x102)&&(ctx[_0x4c9fe7(0xc9)](0x0,0x0,0xc8,0x28),ctx[_0x4c9fe7(0x14b)](),ctx['globalCompositeOperation']=_0x4c9fe7(0x14f),ctx['beginPath'](),ctx[_0x4c9fe7(0xcc)](0x0,0x14,0x8,0x0,Math['PI']*0x2),ctx[_0x4c9fe7(0xc2)](),ctx[_0x4c9fe7(0xeb)](),ctx[_0x4c9fe7(0xcc)](0xc8,0x14,0x8,0x0,Math['PI']*0x2),ctx['fill'](),ctx[_0x4c9fe7(0xef)](),ctx['save'](),ctx[_0x4c9fe7(0xca)]=_0x1108ce,ctx[_0x4c9fe7(0x10a)]([0x3,0x3]),ctx[_0x4c9fe7(0xeb)](),ctx[_0x4c9fe7(0x145)](0xa0,0x0),ctx[_0x4c9fe7(0xcd)](0xa0,0x28),ctx[_0x4c9fe7(0xf4)](),ctx[_0x4c9fe7(0xef)]());}}}function drawNoise(){const _0x3424c2=_0x2d9eee;ctx['save'](),ctx[_0x3424c2(0xed)]=0.15;for(let _0x5aa94b=0x0;_0x5aa94b<0x258;_0x5aa94b++){ctx[_0x3424c2(0xfe)]=Math['random']()>0.5?_0x3424c2(0x14e):_0x3424c2(0xc0),ctx[_0x3424c2(0x13e)](Math['random']()*0xc8,Math[_0x3424c2(0x10f)]()*0x28,0x1,0x1);}ctx[_0x3424c2(0xef)]();}function downloadBanner(_0x4739d5){const _0x37df08=_0x2d9eee;closeModal();const _0x10a1fc=document[_0x37df08(0x122)](_0x37df08(0x127));_0x10a1fc[_0x37df08(0x12c)]=0xc8*_0x4739d5,_0x10a1fc[_0x37df08(0xdc)]=0x28*_0x4739d5;const _0x3d10ea=_0x10a1fc[_0x37df08(0x131)]('2d');_0x3d10ea[_0x37df08(0xf3)]=![],_0x3d10ea['scale'](_0x4739d5,_0x4739d5);try{_0x3d10ea[_0x37df08(0xe1)](canvas,0x0,0x0);const _0x5a92f1=document[_0x37df08(0x122)]('a');_0x5a92f1[_0x37df08(0xd8)]='mirikkan_banner_'+(_0x4739d5===0x1?_0x37df08(0x136):_0x37df08(0xd5))+_0x37df08(0x118),_0x5a92f1[_0x37df08(0xf8)]=_0x10a1fc[_0x37df08(0x14a)](_0x37df08(0xc6)),_0x5a92f1[_0x37df08(0xfc)]();}catch(_0x570170){alert(_0x37df08(0xf9)),console[_0x37df08(0x142)](_0x570170);}}function saveSettings(){const _0x11a84e=_0x2d9eee,_0xac541d={'bgType':document[_0x11a84e(0x10c)](_0x11a84e(0x11e))[_0x11a84e(0x10b)],'bgColor1':document['getElementById'](_0x11a84e(0x129))[_0x11a84e(0x10b)],'bgColor2':document[_0x11a84e(0x10c)](_0x11a84e(0x126))['value'],'patternType':document[_0x11a84e(0x10c)](_0x11a84e(0xda))[_0x11a84e(0x10b)],'patternColor':document['getElementById'](_0x11a84e(0xe5))[_0x11a84e(0x10b)],'patternSize':document['getElementById'](_0x11a84e(0x112))[_0x11a84e(0x10b)],'bannerText':document['getElementById'](_0x11a84e(0x148))[_0x11a84e(0x10b)],'fontFamily':document['getElementById'](_0x11a84e(0x11c))[_0x11a84e(0x10b)],'textColor':document[_0x11a84e(0x10c)]('textColor')[_0x11a84e(0x10b)],'textSize':document[_0x11a84e(0x10c)](_0x11a84e(0xdd))[_0x11a84e(0x10b)],'textX':document['getElementById'](_0x11a84e(0x135))[_0x11a84e(0x10b)],'textY':document['getElementById'](_0x11a84e(0x116))[_0x11a84e(0x10b)],'borderType':document['getElementById'](_0x11a84e(0xd3))['value'],'borderColor':document['getElementById'](_0x11a84e(0x12d))[_0x11a84e(0x10b)],'filterType':document[_0x11a84e(0x10c)](_0x11a84e(0x114))[_0x11a84e(0x10b)],'imgScatter':document[_0x11a84e(0x10c)](_0x11a84e(0xe3))[_0x11a84e(0x141)],'imgOpacity':document[_0x11a84e(0x10c)](_0x11a84e(0x12a))[_0x11a84e(0x10b)],'imgDensity':document[_0x11a84e(0x10c)](_0x11a84e(0xcb))[_0x11a84e(0x10b)],'objX':document[_0x11a84e(0x10c)](_0x11a84e(0x13b))['value'],'objY':document[_0x11a84e(0x10c)](_0x11a84e(0x121))[_0x11a84e(0x10b)],'objScale':document[_0x11a84e(0x10c)]('objScale')[_0x11a84e(0x10b)],'objRotate':document[_0x11a84e(0x10c)](_0x11a84e(0xe0))[_0x11a84e(0x10b)]};localStorage[_0x11a84e(0x11b)](_0x11a84e(0xce),JSON[_0x11a84e(0xff)](_0xac541d));}
+</script>
+
+</body>
+</html>
