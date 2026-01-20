@@ -43,35 +43,7 @@
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
-        
-        .bubble-left {
-            background: var(--red);
-            color: white;
-            padding: 15px 10px; 
-            width: 60px; 
-            height: 60px;
-            
-            font-weight: bold;
-            font-size: 0.9em;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            
-            clip-path: polygon(
-                50% 0%, 63% 20%,    
-                90% 5%, 75% 35%,    
-                100% 30%, 85% 50%, 
-                95% 80%, 70% 70%,   
-                75% 100%, 50% 80%, 
-                35% 100%, 35% 75%,  
-                5% 90%, 25% 60%,   
-                0% 60%, 20% 45%,   
-                0% 25%, 30% 30%,    
-                20% 5%, 45% 20%     
-            );
-        }
+
         .title-box {
             font-family: 'Black Han Sans', sans-serif;
             font-size: 2rem;
@@ -187,7 +159,6 @@
 <body>
 
 <header>
-    <div class="bubble-left">시간<br>절약!</div>
     <div class="title-box">
         <span class="title-sky">껍질-미리깐</span> <span class="title-yellow">배너</span>
     </div>
@@ -225,9 +196,9 @@
                 <select id="patternType" onchange="updateBanner()">
                     <option value="none">없음</option>
                     <option value="dot">도트</option>
-                    <option value="check_gingham">깅엄 체크</option>
+                    <option value="check_gingham" selected>깅엄 체크</option>
                     <option value="check_window">윈도우페인</option>
-                    <option value="check_tartan" selected>타탄 체크</option>
+                    <option value="check_tartan">타탄 체크</option>
                     <option value="check_herring">헤링본</option>
                     <option value="diag">사선</option>
                 </select>
@@ -355,13 +326,13 @@
 
             <div class="row">
                 <label>위치 X</label>
-                <input type="range" id="textX" min="0" max="200" value="143" oninput="document.getElementById('textX_num').value=this.value; updateBanner()">
-                <input type="number" id="textX_num" value="143" oninput="document.getElementById('textX').value=this.value; updateBanner()">
+                <input type="range" id="textX" min="0" max="200" value="142" oninput="document.getElementById('textX_num').value=this.value; updateBanner()">
+                <input type="number" id="textX_num" value="142" oninput="document.getElementById('textX').value=this.value; updateBanner()">
             </div>
             <div class="row">
                 <label>위치 Y</label>
-                <input type="range" id="textY" min="0" max="40" value="22" oninput="document.getElementById('textY_num').value=this.value; updateBanner()">
-                <input type="number" id="textY_num" value="22" oninput="document.getElementById('textY').value=this.value; updateBanner()">
+                <input type="range" id="textY" min="0" max="40" value="21" oninput="document.getElementById('textY_num').value=this.value; updateBanner()">
+                <input type="number" id="textY_num" value="21" oninput="document.getElementById('textY').value=this.value; updateBanner()">
             </div>
         </div>
 
